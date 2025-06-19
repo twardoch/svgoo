@@ -34,95 +34,37 @@ const terserOptions = {
   },
 };
 
-export default [
-  {
-    // Bundle the core svgo library for embedding
-    input: './svgo-analysis/lib/svgo.js',
-    output: {
-      file: './js-dist/svgo-core.js',
-      format: 'esm',
-      exports: 'named',
-    },
-    external: [
-      // Don't bundle Node.js built-ins
-      'os',
-      'fs/promises',
-      'url',
-      'path',
-    ],
-    plugins: [
-      nodeResolve({ 
-        browser: false,
-        preferBuiltins: true,
-        exportConditions: ['node']
-      }),
-      commonjs(),
-      terser(terserOptions),
-    ],
-    onwarn(warning) {
-      // Only fail on errors, not warnings
-      if (warning.code === 'UNRESOLVED_IMPORT') {
-        console.warn(`Warning: ${warning.message}`);
-      }
-    },
+export default {
+  // Bundle standalone svgo for embedding in QuickJS
+  input: './js-src/svgoo-standalone.js',
+  output: {
+    file: './js-dist/svgoo-embedded.js',
+    format: 'esm',
+    exports: 'named',
   },
-  {
-    // Bundle the Node.js version with config loading
-    input: './svgo-analysis/lib/svgo-node.js',
-    output: {
-      file: './js-dist/svgo-node.js',
-      format: 'esm',
-      exports: 'named',
-    },
-    external: [
-      // Don't bundle Node.js built-ins - these will be polyfilled or mocked
-      'os',
-      'fs/promises',
-      'url',
-      'path',
-    ],
-    plugins: [
-      nodeResolve({ 
-        browser: false,
-        preferBuiltins: true,
-        exportConditions: ['node']
-      }),
-      commonjs(),
-      terser(terserOptions),
-    ],
-    onwarn(warning) {
-      if (warning.code === 'UNRESOLVED_IMPORT') {
-        console.warn(`Warning: ${warning.message}`);
-      }
-    },
+  external: [
+    // Mark Node.js built-ins as external - they won't be available in QuickJS
+    'os',
+    'fs/promises', 
+    'url',
+    'path',
+    'fs',
+    'stream',
+    'util',
+  ],
+  plugins: [
+    nodeResolve({ 
+      browser: true,
+      preferBuiltins: false,
+      exportConditions: ['default', 'import']
+    }),
+    commonjs(),
+    terser(terserOptions),
+  ],
+  onwarn(warning) {
+    if (warning.code === 'UNRESOLVED_IMPORT') {
+      console.warn(`Warning: ${warning.message}`);
+      return;
+    }
   },
-  {
-    // Bundle standalone svgo for embedding
-    input: './js-src/svgoo-standalone.js',
-    output: {
-      file: './js-dist/svgoo-embedded.js',
-      format: 'esm',
-      exports: 'named',
-    },
-    external: [
-      // Don't bundle Node.js built-ins - QuickJS doesn't have them
-      'os',
-      'fs/promises', 
-      'url',
-      'path',
-    ],
-    plugins: [
-      nodeResolve({ 
-        browser: true,
-        preferBuiltins: false,
-      }),
-      commonjs(),
-      terser(terserOptions),
-    ],
-    onwarn(warning) {
-      if (warning.code === 'UNRESOLVED_IMPORT') {
-        console.warn(`Warning: ${warning.message}`);
-      }
-    },
-  },
-];
+};

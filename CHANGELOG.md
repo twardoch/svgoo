@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.1.0] - 2025-06-20
+
 ### Added
 - Initial project structure and architecture
 - Rust library foundation with rquickjs integration
@@ -32,8 +34,3 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - FFI bindings for Python/C++ pending
 - Performance optimization needed
 - Comprehensive documentation required
-
-## [0.1.0] - TBD
-
-### Added
-- Initial release planning and foundation
