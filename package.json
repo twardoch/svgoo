@@ -1,0 +1,28 @@
+{
+  "name": "svgoo-js-bundler",
+  "version": "0.1.0",
+  "description": "JavaScript bundling system for svgoo - creates optimized svgo bundles for embedding",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "rollup -c rollup.config.js",
+    "build:watch": "rollup -c rollup.config.js --watch",
+    "clean": "rimraf js-dist"
+  },
+  "devDependencies": {
+    "@rollup/plugin-commonjs": "^26.0.3",
+    "@rollup/plugin-node-resolve": "^15.2.3",
+    "@rollup/plugin-terser": "^0.4.4",
+    "rimraf": "^5.0.10",
+    "rollup": "^4.22.4"
+  },
+  "dependencies": {
+    "commander": "^11.1.0",
+    "css-select": "^5.1.0",
+    "css-tree": "^3.0.1",
+    "css-what": "^6.1.0",
+    "csso": "^5.0.5",
+    "picocolors": "^1.1.1",
+    "sax": "^1.4.1"
+  }
+}

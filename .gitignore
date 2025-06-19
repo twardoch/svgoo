@@ -1,0 +1,57 @@
+# this_file: .gitignore
+
+# Rust
+/target/
+**/*.rs.bk
+Cargo.lock
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Build artifacts
+/dist/
+/build/
+*.exe
+*.pdb
+
+# JavaScript build artifacts
+node_modules/
+/js-bundle/
+*.js.map
+
+# Testing
+/test-output/
+/tmp/
+*.tmp
+
+# Documentation
+/docs/_build/
+
+# Benchmarks
+/benches/target/
+criterion/
+
+# Coverage
+tarpaulin-report.html
+cobertura.xml
+lcov.info
+
+# Package managers
+yarn.lock
+package-lock.json
+
+# Logs
+*.log

@@ -1,0 +1,18 @@
+[
+  {
+    "fileName": "main-overview.mdc",
+    "description": "Complete system overview documenting the high-level architecture, key components, and integration strategy between Rust, QuickJS, and svgo"
+  },
+  {
+    "fileName": "svg-optimization-pipeline.mdc",
+    "description": "Detailed documentation of the SVG optimization workflow, including the data flow between Rust and JavaScript layers, optimization algorithms, and transformation pipeline"
+  },
+  {
+    "fileName": "javascript-interop.mdc",
+    "description": "Technical details of the QuickJS integration, JavaScript code bundling strategy, and the bridge between Rust and svgo's JavaScript optimization code"
+  },
+  {
+    "fileName": "ffi-bindings.mdc",
+    "description": "Comprehensive documentation of the FFI interface design for Python and C++ bindings, including data marshaling and API compatibility requirements"
+  }
+]

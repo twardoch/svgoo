@@ -1,0 +1,95 @@
+# this_file: Cargo.toml
+
+[package]
+name = "svgoo"
+version = "0.1.0"
+edition = "2021"
+description = "Cross-platform SVG optimizer with svgo compatibility - Rust library and CLI with single-file deployment"
+license = "MIT"
+repository = "https://github.com/twardoch/svgoo"
+readme = "README.md"
+keywords = ["svg", "optimization", "cli", "cross-platform", "javascript"]
+categories = ["command-line-utilities", "graphics", "web-programming"]
+
+[dependencies]
+# Core JavaScript runtime integration
+rquickjs = { version = "0.9", features = ["futures", "allocator", "loader", "macro"] }
+
+# CLI argument parsing
+clap = { version = "4.0", features = ["derive", "env"], optional = true }
+
+# Async runtime support
+tokio = { version = "1.0", features = ["full"] }
+
+# Error handling
+anyhow = "1.0"
+thiserror = "1.0"
+
+# Serialization for configuration
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+
+# File system operations
+walkdir = "2.0"
+
+# Performance allocator (optional)
+mimalloc = { version = "0.1", optional = true }
+
+[dev-dependencies]
+# Testing framework
+criterion = { version = "0.5", features = ["html_reports"] }
+tempfile = "3.0"
+assert_cmd = "2.0"
+predicates = "3.0"
+
+[features]
+default = ["cli"]
+cli = ["clap"]
+ffi = []
+performance = ["mimalloc"]
+
+# Binary targets
+[[bin]]
+name = "svgoo"
+path = "src/main.rs"
+required-features = ["cli"]
+
+# Library target
+[lib]
+name = "svgoo"
+path = "src/lib.rs"
+crate-type = ["cdylib", "rlib"]
+
+# Build profiles
+[profile.release]
+opt-level = "z"     # Optimize for size
+lto = true          # Link-time optimization
+codegen-units = 1   # Better optimization
+panic = "abort"     # Reduce binary size
+strip = true        # Remove debug symbols
+
+[profile.dev]
+opt-level = 0
+debug = true
+
+# Benchmark profile
+[profile.bench]
+opt-level = 3
+debug = false
+lto = true
+
+# Cross-compilation targets
+[target.x86_64-unknown-linux-musl]
+linker = "x86_64-linux-musl-gcc"
+
+[target.x86_64-pc-windows-gnu]
+linker = "x86_64-w64-mingw32-gcc"
+
+# Workspace configuration (if needed later)
+# [workspace]
+# members = ["crates/*"]
+
+# Package metadata
+[package.metadata.docs.rs]
+all-features = true
+targets = ["x86_64-unknown-linux-gnu", "x86_64-pc-windows-msvc", "x86_64-apple-darwin"]
