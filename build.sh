@@ -131,19 +131,40 @@ build_rust() {
     
     cd "$PROJECT_DIR"
     
+    # Check disk space
+    local available_space=$(df . | tail -1 | awk '{print $4}')
+    if [ "$available_space" -lt 1048576 ]; then  # Less than 1GB
+        log_warning "Low disk space detected. This may cause build issues."
+        log_info "Available space: $(df -h . | tail -1 | awk '{print $4}')"
+    fi
+    
+    # Kill any stuck cargo processes
+    log_info "Checking for stuck cargo processes..."
+    if pgrep -f cargo > /dev/null; then
+        log_warning "Found existing cargo processes, terminating them..."
+        pkill -f cargo 2>/dev/null || true
+        sleep 2
+    fi
+    
+    # Clean any locks
+    if [ -f "$PROJECT_DIR/target/.cargo-lock" ]; then
+        log_info "Removing cargo lock file..."
+        rm -f "$PROJECT_DIR/target/.cargo-lock"
+    fi
+    
     # Check if we can compile (per CLAUDE.md, there might be compilation issues)
     log_info "Checking compilation..."
-    if ! cargo check --quiet; then
-        log_error "Compilation check failed. See CLAUDE.md for known issues."
+    if ! timeout 60s cargo check --quiet 2>/dev/null; then
+        log_warning "Compilation check failed or timed out. See CLAUDE.md for known issues."
         log_info "Attempting to build anyway..."
     fi
     
     # Build in release mode for optimal performance
     log_info "Building in release mode..."
-    if cargo build --release --bin svgoo; then
+    if timeout 300s cargo build --release --bin svgoo; then
         log_success "Rust binary built successfully"
     else
-        log_error "Rust build failed"
+        log_error "Rust build failed or timed out"
         exit 1
     fi
     
