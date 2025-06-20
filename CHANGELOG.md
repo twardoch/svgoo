@@ -8,6 +8,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+- **Multiple File Support**: CLI now accepts multiple input files for batch processing
+- **File I/O Implementation**: Full file input/output support with proper error handling
+- **Enhanced CLI Tests**: Added tests for multiple file processing and error scenarios
+- Output filename generation for batch processing (`.min.svg` suffix)
+- Progress indicators when processing multiple files
+
+### Known Issues
+- Compilation errors in plugin system due to AsyncRuntime threading constraints
+- JavaScript bundle QuickJS compilation errors need resolution
+- AST visitor pattern implementation incomplete
+
+## [0.2.0] - 2025-06-20
+
+### Added
 - **JavaScript Integration**: Successfully embedded real svgo code using rquickjs
 - **Plugin Architecture**: Implemented AST representation and plugin system foundation
 - Rollup bundling pipeline for optimizing svgo JavaScript (537KB bundle)
@@ -32,11 +46,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Bundle embedding with rquickjs embed macro
 - Test suite now properly validates SVG processing
 - Rollup warnings about Node.js built-ins
-
-### In Progress
-- Threading compatibility issues with AsyncRuntime (not Send/Sync)
-- Plugin loading and execution validation
-- AST conversion between Rust and JavaScript
 
 ## [0.1.0] - 2025-06-20
 

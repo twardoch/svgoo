@@ -185,10 +185,10 @@ pub enum VisitResult {
 
 /// Traverse the AST with a visitor
 pub fn visit(root: &mut XastNode, visitor: &Visitor) {
-    visit_node(root, visitor, None);
+    visit_node(root, visitor, std::ptr::null());
 }
 
-fn visit_node(node: &mut XastNode, visitor: &Visitor, parent: Option<&XastNode>) {
+fn visit_node(node: &mut XastNode, visitor: &Visitor, parent: *const XastNode) {
     // Get the appropriate callbacks for this node type
     let callbacks = match node {
         XastNode::Root(_) => &visitor.root,
@@ -204,7 +204,8 @@ fn visit_node(node: &mut XastNode, visitor: &Visitor, parent: Option<&XastNode>)
     let mut skip_children = false;
     if let Some(callbacks) = callbacks {
         if let Some(enter) = &callbacks.enter {
-            match enter(node, parent) {
+            let parent_ref = if parent.is_null() { None } else { unsafe { parent.as_ref() } };
+            match enter(node, parent_ref) {
                 VisitResult::Skip => skip_children = true,
                 VisitResult::Continue => {}
             }
@@ -213,31 +214,27 @@ fn visit_node(node: &mut XastNode, visitor: &Visitor, parent: Option<&XastNode>)
 
     // Process children if not skipped and node has children
     if !skip_children && node.has_children() {
-        // Process children by index to avoid borrow issues
-        let children_count = match node {
-            XastNode::Root(root) => root.children.len(),
-            XastNode::Element(elem) => elem.children.len(),
-            _ => 0,
-        };
-        
-        for i in 0..children_count {
-            // Get mutable reference to child within the match
-            match node {
-                XastNode::Root(root) => {
-                    visit_node(&mut root.children[i], visitor, Some(node));
-                },
-                XastNode::Element(elem) => {
-                    visit_node(&mut elem.children[i], visitor, Some(node));
-                },
-                _ => {}
-            }
+        let node_ptr = node as *const XastNode;
+        match node {
+            XastNode::Root(root) => {
+                for child in &mut root.children {
+                    visit_node(child, visitor, node_ptr);
+                }
+            },
+            XastNode::Element(elem) => {
+                for child in &mut elem.children {
+                    visit_node(child, visitor, node_ptr);
+                }
+            },
+            _ => {}
         }
     }
 
     // Call exit callback
     if let Some(callbacks) = callbacks {
         if let Some(exit) = &callbacks.exit {
-            exit(node, parent);
+            let parent_ref = if parent.is_null() { None } else { unsafe { parent.as_ref() } };
+            exit(node, parent_ref);
         }
     }
 }
