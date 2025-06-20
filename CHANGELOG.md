@@ -11,9 +11,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - AST visitor pattern borrowing issues resolved with unsafe pointer usage
 - Build now succeeds with plugin module temporarily disabled
 
+### Changed
+- Refocused project scope to MVP 1.2.0 with realistic goals
+- Updated all documentation (PLAN.md, TODO.md, README.md, CLAUDE.md) for MVP scope
+- Restructured tasks into parallel and sequential threads
+- Simplified goals to focus on stable, working tool over feature completeness
+
+### Documentation
+- PLAN.md rewritten with detailed MVP 1.2.0 implementation plan
+- TODO.md simplified to focused checklist format
+- README.md updated to reflect current working state
+- CLAUDE.md updated with current project state and development strategies
+
 ### Known Issues
 - Plugin system disabled due to AsyncRuntime not being Send/Sync
 - Need to redesign plugin architecture for QuickJS constraints
+- File I/O not yet implemented in CLI (priority for MVP)
 
 ## [0.2.0] - 2025-06-20
 

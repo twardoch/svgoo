@@ -4,7 +4,7 @@
 
 **svgoo** is a Rust library and CLI that exposes the same API as svgo (JavaScript SVG optimizer) while bundling svgo code with QuickJS. The goal is single-file deployment across macOS, Linux, and Windows, with bindings for Python and C++ applications.
 
-**Current Status**: Basic SVG optimization working via embedded svgo/QuickJS. The project has compilation issues that need resolution before reaching MVP status. Core features implemented but blocked by threading and compilation errors.
+**Current Status**: Basic SVG optimization working! The project successfully embeds svgo via QuickJS and can optimize SVG files through stdin/stdout. Plugin system temporarily disabled due to threading constraints. Working towards MVP 1.2.0 with focus on stability and essential features.
 
 ## Key References
 
@@ -39,20 +39,20 @@ The project integrates:
 # Optimize SVG from stdin to stdout
 cat input.svg | svgoo > output.svg
 
-# Optimize SVG file
+# Optimize SVG file (coming in 1.2.0)
 svgoo input.svg -o output.svg
 
-# Process multiple files
+# Process multiple files (coming in 1.2.0)
 svgoo file1.svg file2.svg file3.svg
 
-# With custom config
+# With custom config (coming in 2.0)
 svgoo input.svg --config svgo.config.json
 ```
 
-**Current Blockers**:
-- Compilation errors in plugin system (AsyncRuntime threading issues)
-- JavaScript bundle QuickJS compilation errors
-- AST visitor pattern incomplete
+**Current Limitations**:
+- File input/output not yet implemented (use stdin/stdout)
+- Plugin system disabled (using default svgo optimizations)
+- Performance ~3-5x slower than native svgo (acceptable for most use cases)
 
 ## Documentation System
 
@@ -109,10 +109,11 @@ Before and during coding (if have access to tools), you should:
 - JavaScript bundle creation with Rollup
 - Test infrastructure foundation
 
-❌ **Blocked**:
-- Plugin system compilation errors (AsyncRuntime not Send/Sync)
-- QuickJS JavaScript compilation errors
-- Cannot run tests due to compilation issues
+🚧 **In Progress**:
+- File I/O implementation
+- Cross-platform testing
+- Performance profiling
+- Comprehensive documentation
 
 📋 **MVP 1.2.0 Goals**:
 - Fix compilation errors

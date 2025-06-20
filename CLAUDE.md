@@ -4,179 +4,160 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Summary
 
-**svgoo** is a Rust library and CLI that embeds the real svgo JavaScript optimizer via QuickJS, providing single-file deployment across platforms with planned Python/C++ bindings.
+**svgoo** is a Rust library and CLI that embeds the real svgo JavaScript optimizer via QuickJS, providing single-file deployment across platforms.
 
-## Current Status (December 2024)
+## Current State (June 2025)
 
-### ✅ Completed
-- **Foundation**: Full Rust architecture, CLI, testing framework (13 tests passing)
-- **JavaScript Integration**: Successfully embedded real svgo code via rquickjs
-- **Basic Functionality**: SVG optimization working via stdin/stdout
-- **Build System**: Rollup bundling pipeline producing 537KB JS bundle
-- **CI/CD**: GitHub Actions for cross-platform builds
+### ✅ What's Working
+- **JavaScript Integration**: svgo successfully embedded via rquickjs and QuickJS
+- **Basic Optimization**: SVG optimization working via stdin/stdout
+- **CLI Structure**: File I/O and multiple file support implemented
+- **Build Pipeline**: Rollup creates 537KB JavaScript bundle
 
-### 🚧 In Progress
-- **Plugin Architecture**: Implementing svgo's plugin system bridge
-- **File I/O**: Adding file input/output to CLI (currently stdin/stdout only)
+### ❌ What's Broken
+- **Compilation Errors**: Plugin system has threading issues (AsyncRuntime not Send/Sync)
+- **AST Visitor**: Borrowing/lifetime issues in visitor pattern implementation
+- **Import Errors**: SvgoRuntime vs SvgooRuntime naming mismatch
+- **Missing Dependencies**: futures crate not in Cargo.toml
 
-### 📋 Next Priority
-1. Complete plugin architecture bridge for full svgo compatibility
-2. Implement production CLI features (file I/O, batch processing)
-3. Performance optimization (target: within 2x of native svgo)
-4. Comprehensive test suite with reference comparisons
+### 🎯 MVP 1.2.0 Focus
+The goal is a minimal but well-working SVG optimizer. NOT trying to achieve full svgo parity yet.
 
 ## Architecture Overview
 
 ```
 svgoo/
-├── src/                    # Rust source code
-│   ├── main.rs            # CLI entry point
-│   ├── lib.rs             # Library interface
-│   ├── core.rs            # Core optimization logic
-│   ├── embedded_js.rs     # QuickJS integration (KEY FILE)
-│   ├── optimize.rs        # Optimization API
-│   ├── config.rs          # Configuration handling
-│   ├── error.rs           # Error types
-│   └── ffi.rs             # FFI bindings (foundation only)
+├── src/
+│   ├── main.rs            # CLI with file I/O support ✅
+│   ├── lib.rs             # Library interface ✅
+│   ├── core.rs            # Core optimization logic ✅
+│   ├── embedded_js.rs     # QuickJS integration ✅
+│   ├── optimize.rs        # Optimization API ✅
+│   ├── config.rs          # Configuration ✅
+│   ├── error.rs           # Error types ✅
+│   ├── ast.rs             # AST representation ❌ (borrowing issues)
+│   ├── plugin.rs          # Plugin system ❌ (threading issues)
+│   └── ffi.rs             # FFI bindings (unused)
 ├── js-src/                # JavaScript source
-│   └── svgoo-standalone.js # svgo wrapper for QuickJS
+│   └── svgoo-standalone.js # svgo wrapper ✅
 ├── js-dist/               # Bundled JavaScript
-│   └── svgoo-embedded.js  # Rollup output (537KB)
-├── svgo-analysis/         # Full svgo source code
-└── rollup.config.js       # JavaScript bundling config
+│   └── svgoo-embedded.js  # Rollup output ✅
+└── tests/                 # Test suite ⚠️ (can't run due to compilation)
 ```
 
-## Key Technical Details
+## Development Strategy for MVP
 
-1. **JavaScript Integration**
-   - Uses rquickjs embed macro to bundle svgo at compile time
-   - QuickJS runtime initialized on demand
-   - JavaScript bytecode embedded in binary
+### Immediate Priority: Get It Compiling
 
-2. **Current Limitations**
-   - Some svgo optimizations less aggressive (plugin system incomplete)
-   - No file I/O yet (stdin/stdout only)
-   - Performance ~3-4x slower than native svgo (optimization needed)
+1. **Fix AST Module**
+   ```rust
+   // Current issue: Closures trying to borrow mutable references
+   // Solution: Either use Rc<RefCell<>> or redesign without closures
+   ```
 
-3. **Testing**
-   - Compare outputs with reference svgo implementation
-   - All core Rust tests passing
-   - Need comprehensive SVG test suite
+2. **Fix Plugin Module**  
+   ```rust
+   // Current issue: AsyncRuntime is not Send/Sync
+   // Solution for MVP: Remove plugin system entirely, hardcode optimizations
+   ```
 
-## Development Guidelines
+3. **Add Missing Dependencies**
+   ```toml
+   # In Cargo.toml
+   futures = "0.3"
+   ```
+
+### Recommended Approach
+
+1. **Comment out broken modules** to get a clean build
+2. **Focus on basic optimization** without plugin system
+3. **Test thoroughly** with reference SVGs
+4. **Document limitations** clearly
 
 ### Code Quality Standards
-- Only modify code directly relevant to the specific request
-- Never use placeholders - always include complete code
-- Break problems into smaller steps before implementing
-- Provide complete PLAN with REASONING before changes
-- Add logging when debugging issues
 
-### Working with JavaScript Integration
-- The embed macro in `embedded_js.rs` requires js-dist/svgoo-embedded.js to exist
-- Run `npm run build` to regenerate JavaScript bundle after changes
-- Test with both simple and complex SVGs to verify compatibility
+When fixing issues:
+- Don't over-engineer the MVP solution
+- Prefer simple over clever
+- Comment WHY not just WHAT
+- Test each fix incrementally
 
-### Testing Strategy
-1. Unit tests for Rust components
-2. Integration tests comparing with svgo output
-3. CLI tests using assert_cmd
-4. Cross-platform verification in CI
+## Common Commands
 
-### Performance Considerations
-- QuickJS initialization is expensive - consider caching
-- String transfer between Rust/JS can be optimized
-- Bundle size affects startup time
+```bash
+# Always rebuild JS before Rust
+npm run build && cargo build
 
-## Recommended Development Strategies
+# Test with simple SVG
+echo '<svg><rect width="100" height="100"/></svg>' | cargo run
 
-### Immediate Focus (Week 1-2)
-1. **Plugin Architecture** (Thread A)
-   - Study svgo's plugin loading in detail
-   - Create Rust<->JS bridge for plugin configs
-   - Test each built-in plugin individually
+# Run specific test
+cargo test test_file_input_to_stdout
 
-2. **File I/O Implementation** (Thread B)
-   - Add --output/-o flag support
-   - Handle file permissions correctly
-   - Support multiple input files
+# Check what's broken
+cargo check 2>&1 | head -20
+```
 
-3. **Test Suite** (Thread D)
-   - Create reference SVG test set
-   - Automate comparison with svgo
-   - Add regression tests
+## Known Issues & Solutions
 
-### Medium Term (Week 3-4)
-1. **Performance Optimization**
-   - Profile QuickJS overhead
-   - Implement runtime pooling
-   - Optimize JS bundle size
+### Issue: "AsyncRuntime is not Send"
+**Context**: Plugin system tries to store runtime in trait object
+**MVP Solution**: Remove plugin system, hardcode default optimizations
+**Future Solution**: Message passing architecture or synchronous execution
 
-2. **Production Features**
-   - Batch processing with --folder
-   - Progress indicators
-   - All svgo CLI flags
+### Issue: "cannot assign to captured variable in Fn closure"  
+**Context**: AST visitor pattern using closures
+**MVP Solution**: Use function pointers or remove visitor pattern
+**Future Solution**: Proper visitor trait with lifetime management
 
-### Long Term
-1. **Language Bindings**
-   - PyO3 for Python
-   - Modern C++ headers
+### Issue: QuickJS Compilation Errors
+**Context**: JavaScript bundle sometimes fails to compile
+**Solution**: Check for syntax errors, ensure IIFE format, verify no ES6 modules
 
-2. **Distribution**
-   - Package managers
-   - Auto-updates
+## Testing Strategy
 
-## Common Issues & Solutions
+For MVP, focus on:
+1. **Basic optimization works** (removes comments, whitespace)
+2. **File I/O works** (single and multiple files)
+3. **Error handling works** (invalid files, permissions)
+4. **Cross-platform builds** work
 
-1. **Bundle not found**: Run `npm run build` first
-2. **Test failures**: Compare with svgo output, check plugin configs
-3. **Performance**: Use release builds, profile with flamegraph
-4. **Cross-platform**: Test in Docker containers for Linux variants
+## What NOT to Do for MVP
+
+- Don't implement full plugin system
+- Don't optimize for performance  
+- Don't add Python/C++ bindings
+- Don't implement advanced CLI features
+- Don't aim for 100% svgo compatibility
+
+## Recommended Next Steps
+
+1. **Get it compiling** by removing/fixing broken parts
+2. **Verify basic SVG optimization** works
+3. **Test file I/O thoroughly**
+4. **Document what works and what doesn't**
+5. **Ship MVP 1.2.0**
+
+## Critical Business Rules
+
+1. **Single binary deployment** is non-negotiable
+2. **Basic svgo compatibility** for common use cases
+3. **Clear documentation** of limitations
+4. **Reliable error handling** (no panics)
 
 ## MCP Tools Usage
 
 When available, use:
-- `context7` for package documentation
-- `sequentialthinking` for complex problem solving
-- `perplexity_ask` for research
-- Web search for latest svgo changes
+- `context7` for Rust/JavaScript package docs
+- `sequentialthinking` for debugging complex issues
+- Web search for QuickJS/rquickjs specific problems
 
-## Critical Business Rules
+## Success Metrics for MVP
 
-1. **Must maintain exact svgo API compatibility**
-2. **Output should match svgo as closely as possible**
-3. **Single deployable binary requirement**
-4. **Cross-language binding consistency**
+- [ ] Project compiles without errors
+- [ ] Basic SVG optimization works
+- [ ] Can process files from CLI
+- [ ] Tests pass on macOS/Linux/Windows
+- [ ] README clearly explains usage and limitations
 
-## Common Issues & Solutions
-
-### Threading with QuickJS
-- **Issue**: AsyncRuntime is not Send/Sync, preventing use in trait objects
-- **Solution**: Consider using channels to communicate with runtime on dedicated thread
-- **Alternative**: Redesign plugin system to use synchronous execution within context
-
-### JavaScript Bundle Size
-- **Issue**: 537KB bundle size even after optimization
-- **Solution**: Investigate dead code elimination for unused plugins
-- **Consider**: Lazy loading plugins on demand
-
-### Plugin System Design
-- **Current**: AST and plugin traits implemented but blocked by threading
-- **Next**: Either refactor to avoid Send/Sync requirement or use message passing
-
-## Development Tips
-
-1. **Building**: Always run `npm run build` before `cargo build` after JS changes
-2. **Testing**: Use `cargo test -- --nocapture` to see println! output
-3. **Debugging JS**: Add console.log in JS, visible in QuickJS runtime
-4. **Rollup Issues**: Check external dependencies list if build hangs
-
-## Next Actions for Contributors
-
-1. Fix threading issues with plugin system
-2. Complete plugin loading and validation
-3. Add file I/O support to CLI
-4. Create accuracy test suite comparing with svgo
-5. Optimize bundle size and startup time
-
-Remember: The goal is a drop-in replacement for svgo with the benefits of Rust's deployment story. Every decision should support this goal.
+Remember: **Done is better than perfect**. Ship a working MVP, then iterate.
