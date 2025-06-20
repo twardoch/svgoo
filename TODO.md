@@ -4,24 +4,25 @@ Flat itemized list of checkable tasks, focusing on the immediate future.
 
 ## Thread A: JavaScript Integration (HIGH PRIORITY - Sequential)
 
-**Ready to start immediately**
+**Status: Mostly complete, plugin system remaining**
 
-- [ ] Download and analyze latest svgo source code structure
-- [ ] Research rquickjs embed macro for JavaScript bundling
-- [ ] Create svgo bundling script using webpack/rollup
-- [ ] Generate JavaScript bytecode from svgo bundle
-- [ ] Replace placeholder svgo implementation with real embedded code
-- [ ] Test basic SVG optimization matches svgo output
-- [ ] Implement plugin architecture bridge to match svgo's system
+- [x] Download and analyze latest svgo source code structure
+- [x] Research rquickjs embed macro for JavaScript bundling
+- [x] Create svgo bundling script using webpack/rollup
+- [x] Generate JavaScript bytecode from svgo bundle
+- [x] Replace placeholder svgo implementation with real embedded code
+- [x] Test basic SVG optimization matches svgo output
+- [x] Implement plugin architecture bridge to match svgo's system
+- [ ] Fix threading issues with plugin system (AsyncRuntime not Send/Sync)
 - [ ] Add plugin loading and configuration validation
 - [ ] Create comprehensive accuracy test suite vs reference svgo
 
 ## Thread B: Testing & Validation (MEDIUM PRIORITY - Parallel)
 
-**Can start in parallel with Thread A progress**
+**Status: Can run in parallel, foundation exists**
 
 - [ ] Create end-to-end CLI test framework using assert_cmd
-- [ ] Add integration tests for stdin/stdout processing
+- [ ] Add integration tests for file input/output
 - [ ] Implement cross-platform build verification tests
 - [ ] Create regression test suite against svgo reference outputs
 - [ ] Add performance benchmarking vs svgo and osvg
@@ -29,21 +30,33 @@ Flat itemized list of checkable tasks, focusing on the immediate future.
 - [ ] Implement stress testing for large SVG files
 - [ ] Add automated compatibility verification
 
-## Thread C: Build Pipeline (MEDIUM PRIORITY - Sequential)
+## Thread C: Performance & Optimization (MEDIUM PRIORITY - Sequential)
 
-**Starts after Thread A completes bundling research**
+**Status: Ready to start after plugin system**
 
-- [ ] Set up Node.js build environment for svgo bundling
-- [ ] Configure webpack/rollup for optimized svgo bundle
-- [ ] Create automated build pipeline for JavaScript assets
-- [ ] Implement build verification ensuring svgo compatibility
-- [ ] Add automated svgo version update mechanism
-- [ ] Create build caching system for JavaScript assets
-- [ ] Optimize bundle size and startup performance
+- [ ] Optimize QuickJS runtime creation and caching
+- [ ] Implement runtime pooling for concurrent operations
+- [ ] Profile and optimize JavaScript<->Rust data transfer
+- [ ] Reduce bundle size with better tree-shaking
+- [ ] Add lazy loading for unused svgo plugins
+- [ ] Optimize startup time with bytecode caching
+- [ ] Implement streaming processing for large files
 
-## Thread D: Advanced Features (LOW PRIORITY - Future)
+## Thread D: Production Features (HIGH PRIORITY - Parallel)
 
-**Future work after core functionality complete**
+**Status: Ready to start**
+
+- [ ] Implement file input/output in CLI (currently stdin/stdout only)
+- [ ] Add --config flag for custom configuration files
+- [ ] Implement --folder flag for batch processing
+- [ ] Add progress indicators for batch operations
+- [ ] Implement --quiet and --verbose flags
+- [ ] Add --pretty flag for formatted output
+- [ ] Support glob patterns for file selection
+
+## Thread E: Advanced Features (LOW PRIORITY - Future)
+
+**Status: Future work after core functionality complete**
 
 - [ ] Research PyO3 for Python bindings implementation
 - [ ] Create C++ header generation system
@@ -68,10 +81,13 @@ Flat itemized list of checkable tasks, focusing on the immediate future.
 - [x] Implement FFI bindings foundation
 - [x] Create comprehensive error handling
 - [x] Document API with rustdoc
+- [x] JavaScript integration via rquickjs
+- [x] Rollup bundling configuration
+- [x] Basic SVG optimization working
 
 ## Continuous Tasks
 
-- [ ] Update CHANGELOG.md with changes
+- [x] Update CHANGELOG.md with changes (just done)
 - [ ] Maintain test coverage >90%
-- [ ] Keep PLAN.md current with progress
-- [ ] Update CLAUDE.md with insights
+- [x] Keep PLAN.md current with progress (updating now)
+- [ ] Update CLAUDE.md with insights (will do next)

@@ -350,3 +350,82 @@ fn test_svgo_compatibility_basic() {
     assert!(output_str.contains("svg"));
     assert!(output_str.contains("rect"));
 }
+
+/// Test processing multiple input files
+#[test]
+fn test_multiple_input_files() -> Result<(), Box<dyn std::error::Error>> {
+    let temp_dir = TempDir::new()?;
+    let input1_path = temp_dir.path().join("file1.svg");
+    let input2_path = temp_dir.path().join("file2.svg");
+    
+    fs::write(&input1_path, SIMPLE_SVG)?;
+    fs::write(&input2_path, COMPLEX_SVG)?;
+    
+    let mut cmd = Command::cargo_bin("svgoo").unwrap();
+    cmd.arg(&input1_path)
+        .arg(&input2_path);
+    
+    cmd.assert().success();
+    
+    // Check that optimized files were created
+    let output1_path = temp_dir.path().join("file1.min.svg");
+    let output2_path = temp_dir.path().join("file2.min.svg");
+    
+    assert!(output1_path.exists());
+    assert!(output2_path.exists());
+    
+    let output1_content = fs::read_to_string(&output1_path)?;
+    let output2_content = fs::read_to_string(&output2_path)?;
+    
+    assert!(output1_content.contains("svg"));
+    assert!(output2_content.contains("svg"));
+    
+    Ok(())
+}
+
+/// Test that multiple files cannot use single output file
+#[test]
+fn test_multiple_files_single_output_error() -> Result<(), Box<dyn std::error::Error>> {
+    let temp_dir = TempDir::new()?;
+    let input1_path = temp_dir.path().join("file1.svg");
+    let input2_path = temp_dir.path().join("file2.svg");
+    let output_path = temp_dir.path().join("output.svg");
+    
+    fs::write(&input1_path, SIMPLE_SVG)?;
+    fs::write(&input2_path, COMPLEX_SVG)?;
+    
+    let mut cmd = Command::cargo_bin("svgoo").unwrap();
+    cmd.arg(&input1_path)
+        .arg(&input2_path)
+        .arg("--output")
+        .arg(&output_path);
+    
+    cmd.assert()
+        .failure()
+        .stderr(predicate::str::contains("Cannot specify a single output file when processing multiple input files"));
+    
+    Ok(())
+}
+
+/// Test processing multiple files to stdout
+#[test]
+fn test_multiple_files_to_stdout() -> Result<(), Box<dyn std::error::Error>> {
+    let temp_dir = TempDir::new()?;
+    let input1_path = temp_dir.path().join("file1.svg");
+    let input2_path = temp_dir.path().join("file2.svg");
+    
+    fs::write(&input1_path, SIMPLE_SVG)?;
+    fs::write(&input2_path, SIMPLE_SVG)?;
+    
+    let mut cmd = Command::cargo_bin("svgoo").unwrap();
+    cmd.arg(&input1_path)
+        .arg(&input2_path)
+        .arg("--output")
+        .arg("-");
+    
+    cmd.assert()
+        .success()
+        .stdout(predicate::str::contains("svg"));
+    
+    Ok(())
+}

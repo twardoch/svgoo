@@ -5,7 +5,7 @@
 //! This module contains the bundled svgo JavaScript code that gets embedded
 //! into the Rust binary using the rquickjs embed macro.
 
-use rquickjs::{embed, AsyncRuntime, Module, Result as JsResult, Context, Ctx, loader::Bundle};
+use rquickjs::{embed, AsyncRuntime, Module, Result as JsResult, Ctx, loader::Bundle};
 
 // Embed the bundled svgo JavaScript code
 // The embed! macro will convert the JavaScript file to bytecode at compile time

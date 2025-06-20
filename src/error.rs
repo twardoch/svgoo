@@ -42,6 +42,16 @@ pub enum SvgooError {
     /// Invalid input errors
     #[error("Invalid input: {0}")]
     InvalidInput(String),
+    
+    /// QuickJS runtime errors
+    #[error("QuickJS error: {0}")]
+    QuickJsError(String),
+}
+
+impl From<rquickjs::Error> for SvgooError {
+    fn from(err: rquickjs::Error) -> Self {
+        Self::QuickJsError(err.to_string())
+    }
 }
 
 impl SvgooError {

@@ -17,9 +17,10 @@ fn main() -> Result<()> {
                      but as a single binary that works across platforms without requiring Node.js.")
         .arg(
             Arg::new("input")
-                .help("Input SVG file (use - for stdin)")
+                .help("Input SVG file(s) (use - for stdin)")
                 .value_name("INPUT")
                 .index(1)
+                .num_args(1..)
         )
         .arg(
             Arg::new("output")
@@ -57,19 +58,10 @@ fn main() -> Result<()> {
         )
         .get_matches();
 
-    // Read input
-    let input_svg = match matches.get_one::<String>("input") {
-        Some(path) if path == "-" => {
-            let mut buffer = String::new();
-            io::stdin().read_to_string(&mut buffer)?;
-            buffer
-        }
-        Some(path) => fs::read_to_string(path)?,
-        None => {
-            let mut buffer = String::new();
-            io::stdin().read_to_string(&mut buffer)?;
-            buffer
-        }
+    // Get input files
+    let input_files: Vec<String> = match matches.get_many::<String>("input") {
+        Some(values) => values.cloned().collect(),
+        None => vec!["-".to_string()], // Default to stdin
     };
 
     // Load configuration
@@ -96,19 +88,65 @@ fn main() -> Result<()> {
         }
     }
 
-    // Optimize SVG
-    let optimized_svg = optimize_svg(&input_svg, &config)?;
+    // Check if we have multiple inputs and a single output file
+    let output_path = matches.get_one::<String>("output");
+    if input_files.len() > 1 && output_path.is_some() && output_path != Some(&"-".to_string()) {
+        eprintln!("Error: Cannot specify a single output file when processing multiple input files");
+        eprintln!("Use --output with a directory path or omit it to output to stdout");
+        std::process::exit(1);
+    }
 
-    // Write output
-    match matches.get_one::<String>("output") {
-        Some(path) if path == "-" => {
-            io::stdout().write_all(optimized_svg.as_bytes())?;
-        }
-        Some(path) => {
-            fs::write(path, optimized_svg)?;
-        }
-        None => {
-            io::stdout().write_all(optimized_svg.as_bytes())?;
+    // Process each input file
+    for (index, input_path) in input_files.iter().enumerate() {
+        // Read input
+        let input_svg = if input_path == "-" {
+            let mut buffer = String::new();
+            io::stdin().read_to_string(&mut buffer)?;
+            buffer
+        } else {
+            fs::read_to_string(input_path)?
+        };
+
+        // Optimize SVG
+        let optimized_svg = optimize_svg(&input_svg, &config)?;
+
+        // Determine output destination
+        let output_dest = if input_files.len() == 1 {
+            // Single file: use specified output or stdout
+            output_path.cloned()
+        } else {
+            // Multiple files: generate output filename
+            if input_path == "-" {
+                None // Output to stdout for stdin input
+            } else {
+                // Generate output filename based on input
+                let path = std::path::Path::new(input_path);
+                let stem = path.file_stem().unwrap_or_default();
+                let ext = path.extension().unwrap_or_default();
+                let output_name = format!("{}.min.{}", stem.to_string_lossy(), ext.to_string_lossy());
+                let output_file = path.with_file_name(output_name);
+                Some(output_file.to_string_lossy().to_string())
+            }
+        };
+
+        // Write output
+        match output_dest {
+            Some(path) if path == "-" => {
+                io::stdout().write_all(optimized_svg.as_bytes())?;
+            }
+            Some(path) => {
+                fs::write(&path, &optimized_svg)?;
+                if input_files.len() > 1 {
+                    println!("Optimized: {} -> {}", input_path, path);
+                }
+            }
+            None => {
+                io::stdout().write_all(optimized_svg.as_bytes())?;
+                if index < input_files.len() - 1 {
+                    // Add newline between outputs when multiple files to stdout
+                    println!();
+                }
+            }
         }
     }
 

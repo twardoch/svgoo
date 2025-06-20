@@ -7,6 +7,37 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+- **JavaScript Integration**: Successfully embedded real svgo code using rquickjs
+- **Plugin Architecture**: Implemented AST representation and plugin system foundation
+- Rollup bundling pipeline for optimizing svgo JavaScript (537KB bundle)
+- Working SVG optimization via QuickJS runtime
+- Functional stdin/stdout processing in CLI
+- Test infrastructure comparing svgoo output with reference svgo
+- AST module with visitor pattern matching svgo's structure
+- Plugin trait system for bridging Rust and JavaScript plugins
+- Plugin registry and execution framework
+- JavaScript bridge functions for plugin integration
+
+### Changed
+- Refactored svgoo-embedded.js for QuickJS compatibility
+- Updated rollup.config.js to handle Node.js built-ins as externals
+- Switched from placeholder to real svgo optimization engine
+- Improved embedded_js.rs with proper bundle loading
+- Enhanced JavaScript bundle to expose plugin functions
+- Rollup now outputs IIFE format for better QuickJS compatibility
+
+### Fixed
+- JavaScript module resolution in QuickJS environment
+- Bundle embedding with rquickjs embed macro
+- Test suite now properly validates SVG processing
+- Rollup warnings about Node.js built-ins
+
+### In Progress
+- Threading compatibility issues with AsyncRuntime (not Send/Sync)
+- Plugin loading and execution validation
+- AST conversion between Rust and JavaScript
+
 ## [0.1.0] - 2025-06-20
 
 ### Added

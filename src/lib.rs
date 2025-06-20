@@ -11,11 +11,13 @@
 #![warn(missing_docs)]
 #![warn(rust_2018_idioms)]
 
+pub mod ast;
 pub mod config;
 pub mod core;
-// pub mod embedded_js; // TODO: Re-enable when JavaScript embedding is ready
+pub mod embedded_js;
 pub mod error;
 pub mod optimize;
+pub mod plugin;
 
 #[cfg(feature = "ffi")]
 pub mod ffi;

@@ -39,7 +39,8 @@ export default {
   input: './js-src/svgoo-standalone.js',
   output: {
     file: './js-dist/svgoo-embedded.js',
-    format: 'esm',
+    format: 'iife',
+    name: 'svgooBundle',
     exports: 'named',
   },
   external: [
@@ -51,6 +52,9 @@ export default {
     'fs',
     'stream',
     'util',
+    'string_decoder',
+    'buffer',
+    'events',
   ],
   plugins: [
     nodeResolve({ 
