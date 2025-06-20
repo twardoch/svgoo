@@ -13,11 +13,18 @@ fn main() -> Result<()> {
     let matches = Command::new("svgoo")
         .version(env!("CARGO_PKG_VERSION"))
         .about("Cross-platform SVG optimizer with svgo compatibility")
-        .long_about("svgoo is a standalone SVG optimization tool that provides the same functionality as svgo \
-                     but as a single binary that works across platforms without requiring Node.js.")
+        .long_about("svgoo is a standalone SVG optimization tool that embeds the svgo JavaScript \
+                     optimizer in a single Rust binary. No Node.js required!\n\n\
+                     EXAMPLES:\n  \
+                     svgoo input.svg -o output.svg          Optimize single file\n  \
+                     svgoo *.svg                            Process multiple files\n  \
+                     cat input.svg | svgoo > output.svg     Use with pipes\n  \
+                     svgoo --pretty input.svg               Pretty print output")
         .arg(
             Arg::new("input")
                 .help("Input SVG file(s) (use - for stdin)")
+                .long_help("Input SVG file(s) to optimize. Use '-' to read from stdin. \
+                           When processing multiple files, .min.svg versions are created.")
                 .value_name("INPUT")
                 .index(1)
                 .num_args(1..)
@@ -27,32 +34,48 @@ fn main() -> Result<()> {
                 .short('o')
                 .long("output")
                 .help("Output file (use - for stdout)")
+                .long_help("Output file path. Use '-' to write to stdout. \
+                           Cannot be used with multiple input files.")
                 .value_name("OUTPUT")
+        )
+        .arg(
+            Arg::new("quiet")
+                .short('q')
+                .long("quiet")
+                .help("Suppress non-error output")
+                .action(clap::ArgAction::SetTrue)
         )
         .arg(
             Arg::new("config")
                 .short('c')
                 .long("config")
-                .help("Path to configuration file")
+                .help("Path to configuration file (coming in v2.0)")
+                .long_help("Path to svgo configuration file. Currently not supported - \
+                           using built-in optimizations.")
                 .value_name("CONFIG")
         )
         .arg(
             Arg::new("pretty")
                 .long("pretty")
-                .help("Make SVG pretty printed")
+                .help("Format output with indentation")
+                .long_help("Pretty print the output SVG with proper indentation and formatting.")
                 .action(clap::ArgAction::SetTrue)
         )
         .arg(
             Arg::new("disable")
                 .long("disable")
-                .help("Disable plugin(s)")
+                .help("Disable plugin(s) (coming in v2.0)")
+                .long_help("Disable specific svgo plugins. Currently not supported - \
+                           using built-in optimizations.")
                 .value_name("PLUGIN")
                 .action(clap::ArgAction::Append)
         )
         .arg(
             Arg::new("enable")
                 .long("enable")
-                .help("Enable plugin(s)")
+                .help("Enable plugin(s) (coming in v2.0)")
+                .long_help("Enable specific svgo plugins. Currently not supported - \
+                           using built-in optimizations.")
                 .value_name("PLUGIN")
                 .action(clap::ArgAction::Append)
         )
@@ -88,6 +111,9 @@ fn main() -> Result<()> {
         }
     }
 
+    // Get quiet flag
+    let quiet = matches.get_flag("quiet");
+    
     // Check if we have multiple inputs and a single output file
     let output_path = matches.get_one::<String>("output");
     if input_files.len() > 1 && output_path.is_some() && output_path != Some(&"-".to_string()) {
@@ -136,7 +162,7 @@ fn main() -> Result<()> {
             }
             Some(path) => {
                 fs::write(&path, &optimized_svg)?;
-                if input_files.len() > 1 {
+                if input_files.len() > 1 && !quiet {
                     println!("Optimized: {} -> {}", input_path, path);
                 }
             }

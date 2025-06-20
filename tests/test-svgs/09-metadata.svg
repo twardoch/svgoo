@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100">
+  <metadata>
+    <rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
+      <rdf:Description>
+        <dc:title>Test SVG</dc:title>
+        <dc:creator>svgoo test suite</dc:creator>
+      </rdf:Description>
+    </rdf:RDF>
+  </metadata>
+  <title>Test SVG</title>
+  <desc>A simple test SVG with metadata</desc>
+  <rect x="25" y="25" width="50" height="50" fill="teal"/>
+</svg>

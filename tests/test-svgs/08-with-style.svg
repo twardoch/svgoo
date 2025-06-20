@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="150" height="150">
+  <style>
+    .red-rect { fill: red; stroke: black; stroke-width: 2; }
+    .blue-circle { fill: blue; opacity: 0.7; }
+  </style>
+  <rect x="20" y="20" width="60" height="60" class="red-rect"/>
+  <circle cx="100" cy="100" r="25" class="blue-circle"/>
+</svg>

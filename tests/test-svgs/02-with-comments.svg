@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="200" height="200">
+  <!-- Header comment -->
+  <defs>
+    <!-- Definition comment -->
+    <circle id="circle" r="50" fill="blue"/>
+  </defs>
+  <!-- Body comment -->
+  <use href="#circle" x="100" y="100"/>
+  <!-- Footer comment -->
+</svg>
