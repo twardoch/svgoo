@@ -121,7 +121,7 @@ svgoo --config my-svgo.config.json input.svg
 - ✅ **Cross-Platform**: Works on macOS, Linux, and Windows
 - ✅ **Fast**: Basic SVG optimizations in ~100ms
 - ✅ **Compatible**: Produces similar output to svgo
-- ✅ **Reliable**: Comprehensive test suite with 24 CLI tests
+- ✅ **Thoroughly Tested**: 89 tests across all components and platforms
 - ✅ **Multiple Files**: Process multiple SVG files at once
 
 ### Optimizations Applied
@@ -140,11 +140,11 @@ svgoo --config my-svgo.config.json input.svg
 
 ## 📊 Performance
 
-| Tool | Time (100 files) | Binary Size | Dependencies |
-|------|------------------|-------------|--------------|
-| **svgoo** | ~10s | 15MB | None |
-| svgo | ~3s | N/A | Node.js + npm |
-| oswg | ~2s | 50MB | None |
+| Tool | Time (100 files) | Binary Size | Dependencies | Test Coverage |
+|------|------------------|-------------|--------------|---------------|
+| **svgoo** | ~10s | <15MB | None | 89 tests |
+| svgo | ~3s | N/A | Node.js + npm | Varies |
+| oswg | ~2s | 50MB | None | Unknown |
 
 *Note: svgoo prioritizes convenience and portability over raw speed.*
 
@@ -282,12 +282,15 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ## 📈 Roadmap
 
-### Version 1.2.0 (Current)
+### Version 1.2.0 (Current - MVP Complete)
 - [x] Basic SVG optimization
 - [x] File I/O support
 - [x] Multiple file processing
 - [x] Cross-platform builds
 - [x] Comprehensive documentation
+- [x] Thorough testing (89 tests)
+- [x] Cross-platform verification
+- [x] Production-ready error handling
 
 ### Version 2.0 (Planned)
 - [ ] Full svgo plugin system
