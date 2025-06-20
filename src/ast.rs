@@ -212,13 +212,24 @@ fn visit_node(node: &mut XastNode, visitor: &Visitor, parent: Option<&XastNode>)
     }
 
     // Process children if not skipped and node has children
-    if !skip_children {
-        if let Some(children) = node.children_mut() {
-            // Clone the parent node to avoid borrow issues
-            let parent_clone = node.clone();
-            let children_len = children.len();
-            for i in 0..children_len {
-                visit_node(&mut children[i], visitor, Some(&parent_clone));
+    if !skip_children && node.has_children() {
+        // Process children by index to avoid borrow issues
+        let children_count = match node {
+            XastNode::Root(root) => root.children.len(),
+            XastNode::Element(elem) => elem.children.len(),
+            _ => 0,
+        };
+        
+        for i in 0..children_count {
+            // Get mutable reference to child within the match
+            match node {
+                XastNode::Root(root) => {
+                    visit_node(&mut root.children[i], visitor, Some(node));
+                },
+                XastNode::Element(elem) => {
+                    visit_node(&mut elem.children[i], visitor, Some(node));
+                },
+                _ => {}
             }
         }
     }

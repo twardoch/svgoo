@@ -17,7 +17,7 @@ pub mod core;
 pub mod embedded_js;
 pub mod error;
 pub mod optimize;
-pub mod plugin;
+// pub mod plugin; // Temporarily disabled due to threading issues
 
 #[cfg(feature = "ffi")]
 pub mod ffi;
