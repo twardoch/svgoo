@@ -26,7 +26,23 @@ cat input.svg | ./target/release/svgoo > output.svg
 
 ## 📦 Installation
 
-### From Source (Current)
+### Pre-built Binaries (Recommended)
+
+Download the latest release for your platform:
+
+**macOS (Intel):**
+```bash
+curl -L https://github.com/twardoch/svgoo/releases/download/v1.2.0/svgoo-v1.2.0-macos-x86_64 -o svgoo
+chmod +x svgoo
+./svgoo --version
+```
+
+**Coming Soon:**
+- macOS (Apple Silicon)
+- Linux (x86_64)  
+- Windows (x86_64)
+
+### From Source
 
 **Prerequisites:**
 - [Rust](https://rustup.rs/) (latest stable)
@@ -41,13 +57,6 @@ cargo build --release
 ```
 
 The binary will be available at `./target/release/svgoo`.
-
-### Pre-built Binaries (Coming Soon)
-
-Release binaries will be available for:
-- macOS (Intel & Apple Silicon)
-- Linux (x86_64)
-- Windows (x86_64)
 
 ## 🛠️ Usage
 
