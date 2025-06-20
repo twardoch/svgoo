@@ -55,3 +55,4 @@ package-lock.json
 
 # Logs
 *.log
+svgo-analysis
