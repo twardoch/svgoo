@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Planned for 1.2.0
+- File I/O implementation in CLI
+- Multiple file processing
+- Essential CLI flags (--quiet, --pretty, --version)
+- Cross-platform testing and verification
+
+## [1.1.0] - 2025-06-20
+
 ### Fixed  
 - AST visitor pattern borrowing issues resolved with unsafe pointer usage
 - Build now succeeds with plugin module temporarily disabled
