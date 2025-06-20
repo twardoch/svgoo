@@ -7,17 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-### Added
-- **Multiple File Support**: CLI now accepts multiple input files for batch processing
-- **File I/O Implementation**: Full file input/output support with proper error handling
-- **Enhanced CLI Tests**: Added tests for multiple file processing and error scenarios
-- Output filename generation for batch processing (`.min.svg` suffix)
-- Progress indicators when processing multiple files
+### Fixed  
+- AST visitor pattern borrowing issues resolved with unsafe pointer usage
+- Build now succeeds with plugin module temporarily disabled
 
 ### Known Issues
-- Compilation errors in plugin system due to AsyncRuntime threading constraints
-- JavaScript bundle QuickJS compilation errors need resolution
-- AST visitor pattern implementation incomplete
+- Plugin system disabled due to AsyncRuntime not being Send/Sync
+- Need to redesign plugin architecture for QuickJS constraints
 
 ## [0.2.0] - 2025-06-20
 

@@ -1,242 +1,218 @@
-# PLAN.md
+# PLAN.md - svgoo Version 1.2.0 MVP
 
-This file provides a detailed plan for the entire svgoo project with checkable tasks.
+This document outlines the focused plan for svgoo version 1.2.0 - a minimal viable product that provides a stable, well-documented SVG optimization tool compatible with basic svgo usage.
 
-## Project Overview
+## MVP Scope Definition
 
-svgoo is a Rust library and CLI that exposes the same API as svgo (JavaScript SVG optimizer) while bundling svgo code with QuickJS. The project enables single-file deployment across macOS, Linux, and Windows, with bindings for Python and C++ applications.
+### What Version 1.2.0 Will Be
+- A stable, single-binary SVG optimizer that works on all major platforms
+- Compatible with basic svgo usage patterns (file input/output, stdin/stdout)
+- Well-documented with clear installation and usage instructions
+- Properly tested with >80% code coverage
+- Performance within 3-5x of native svgo (acceptable for most use cases)
 
-## Current Status Summary
+### What Version 1.2.0 Will NOT Be
+- Full plugin system compatibility (deferred to 2.0)
+- Python/C++ bindings (deferred to 2.0)
+- Advanced CLI features like watch mode or GUI (future versions)
+- 100% feature parity with svgo (focus on 80% most-used features)
 
-### ✅ Completed Phases
+## Current State Assessment
 
-1. **Foundation Phase** (100% Complete)
-   - Core Rust architecture with modular design
-   - CLI interface with clap argument parsing
-   - Configuration system compatible with svgo
-   - FFI bindings foundation
-   - Comprehensive error handling
-   - Testing framework (13 tests passing)
-   - CI/CD pipeline with GitHub Actions
+### Working Components
+- ✅ Basic SVG optimization via embedded svgo JavaScript
+- ✅ QuickJS runtime integration functioning
+- ✅ CLI with stdin/stdout support
+- ✅ Project builds and runs on macOS
+- ✅ Test infrastructure in place
 
-2. **JavaScript Integration Phase** (85% Complete)
-   - Successfully embedded real svgo code via rquickjs
-   - Rollup bundling pipeline configured (537KB bundle)
-   - Working SVG optimization via QuickJS runtime
-   - Basic stdin/stdout processing functional
-   - Test comparison with reference svgo output
+### Broken/Incomplete Components
+- ❌ Plugin system (threading issues with AsyncRuntime)
+- ❌ File I/O in CLI
+- ❌ Cross-platform testing
+- ❌ Performance optimization
+- ❌ Comprehensive documentation
 
-### 🚧 In Progress
+## Implementation Threads for MVP
 
-- **Plugin Architecture Bridge** - Implementing svgo's plugin system in Rust/JS bridge
-- **Configuration Compatibility** - Ensuring all svgo config options work correctly
+### Thread A: Core Stability (CRITICAL - Sequential)
+**Goal**: Fix critical issues and ensure reliable operation
 
-### 📋 Upcoming Phases
+#### A1. Simplify Plugin Architecture (1 week)
+- [ ] Remove complex plugin bridge code
+- [ ] Implement simple hardcoded plugin pipeline matching svgo defaults
+- [ ] Ensure all default svgo optimizations work correctly
+- [ ] Add configuration to enable/disable specific optimizations
+- [ ] Test against svgo reference outputs
 
-1. **Production Features** - File I/O, batch processing, CLI flags
-2. **Performance Optimization** - Runtime caching, concurrent processing
-3. **Testing & Validation** - Comprehensive test suite, cross-platform verification
-4. **Advanced Features** - Python/C++ bindings, package manager distribution
+#### A2. Fix JavaScript Integration Issues (3 days)
+- [ ] Resolve QuickJS compilation warnings
+- [ ] Ensure proper error handling from JavaScript runtime
+- [ ] Add timeout protection for long-running optimizations
+- [ ] Improve error messages for invalid SVG input
 
-## Detailed Implementation Plan
+#### A3. Memory and Resource Management (3 days)
+- [ ] Profile memory usage with large SVG files
+- [ ] Implement proper cleanup of JavaScript contexts
+- [ ] Add resource limits to prevent runaway processes
+- [ ] Test with stress scenarios (large files, many files)
 
-### Thread A: JavaScript Plugin Architecture (HIGH PRIORITY - Sequential)
+### Thread B: Essential CLI Features (HIGH PRIORITY - Parallel)
+**Goal**: Implement must-have CLI functionality for real-world usage
 
-**Objective**: Complete the svgo plugin system integration to achieve full compatibility.
+#### B1. File Input/Output (3 days)
+- [ ] Implement basic file reading with error handling
+- [ ] Add `-o/--output` flag for file output
+- [ ] Support reading from file and writing to stdout
+- [ ] Support reading from stdin and writing to file
+- [ ] Handle file permissions and overwrite scenarios
 
-**Detailed Steps**:
+#### B2. Multiple File Processing (2 days)
+- [ ] Support multiple input files on command line
+- [ ] Generate output filenames (input.svg → input.min.svg)
+- [ ] Add `--suffix` flag to customize output suffix
+- [ ] Show simple progress for batch operations
+- [ ] Handle errors gracefully (continue on failure)
 
-1. **Plugin Bridge Implementation** (Current Focus)
-   - Analyze svgo's plugin loading mechanism in detail
-   - Create Rust structures to represent plugin configurations
-   - Implement JavaScript<->Rust communication for plugin parameters
-   - Handle plugin ordering and dependencies correctly
-   - Support both built-in and custom plugins
+#### B3. Essential CLI Flags (2 days)
+- [ ] `--help/-h`: Comprehensive help text
+- [ ] `--version/-v`: Show version information
+- [ ] `--quiet/-q`: Suppress non-error output
+- [ ] `--pretty`: Format output with indentation
+- [ ] `--config`: Load configuration from JSON file
 
-2. **Configuration Validation**
-   - Parse svgo.config.js/mjs files correctly
-   - Validate plugin configurations against svgo schema
-   - Provide helpful error messages for invalid configs
-   - Support all svgo configuration formats (JSON, JS, MJS)
+### Thread C: Quality Assurance (MEDIUM PRIORITY - Parallel)
+**Goal**: Ensure reliability and compatibility
 
-3. **Accuracy Test Suite**
-   - Create comprehensive test SVGs covering all optimization scenarios
-   - Compare byte-for-byte with svgo reference outputs
-   - Test all built-in plugins individually
-   - Verify plugin combinations work correctly
-   - Add regression tests for known svgo bugs
+#### C1. Comprehensive Testing (1 week)
+- [ ] Create test suite with 50+ real-world SVG files
+- [ ] Compare outputs with svgo for compatibility
+- [ ] Add integration tests for all CLI features
+- [ ] Test error scenarios (invalid files, permissions)
+- [ ] Achieve >80% code coverage
 
-### Thread B: Production CLI Features (HIGH PRIORITY - Parallel)
+#### C2. Cross-Platform Verification (3 days)
+- [ ] Test on Ubuntu 20.04 and 22.04
+- [ ] Test on Windows 10 and 11
+- [ ] Test on macOS 12+ (Intel and ARM)
+- [ ] Verify single-binary deployment works
+- [ ] Document platform-specific issues
 
-**Objective**: Implement all standard svgo CLI features for drop-in replacement.
+#### C3. Performance Baseline (2 days)
+- [ ] Benchmark against svgo with various file sizes
+- [ ] Document performance characteristics
+- [ ] Identify bottlenecks for future optimization
+- [ ] Set realistic performance expectations
 
-**Detailed Steps**:
+### Thread D: Documentation (HIGH PRIORITY - Parallel)
+**Goal**: Make svgoo easy to adopt and use
 
-1. **File Input/Output**
-   - Implement file reading with proper error handling
-   - Support --output/-o flag for file output
-   - Handle file permissions and overwrite scenarios
-   - Support multiple input files
-   - Preserve file timestamps if requested
+#### D1. User Documentation (3 days)
+- [ ] Write comprehensive README with examples
+- [ ] Create installation guide for each platform
+- [ ] Document all CLI options with examples
+- [ ] Add migration guide from svgo
+- [ ] Include troubleshooting section
 
-2. **Batch Processing**
-   - Implement --folder flag for directory processing
-   - Support recursive directory traversal
-   - Add glob pattern support (*.svg, **/*.svg)
-   - Implement parallel processing for multiple files
-   - Show progress bars for large batches
+#### D2. Developer Documentation (2 days)
+- [ ] Document project architecture
+- [ ] Explain JavaScript integration approach
+- [ ] Create contributor guidelines
+- [ ] Document build process for all platforms
+- [ ] Add debugging tips
 
-3. **CLI Flags Implementation**
-   - --config: Load custom configuration files
-   - --quiet/-q: Suppress non-error output
-   - --verbose/-v: Show detailed processing information
-   - --pretty: Format output SVG with indentation
-   - --multipass: Run optimization multiple times
-   - --precision: Set number precision
-   - --indent: Set indentation (tabs/spaces)
+#### D3. Release Documentation (1 day)
+- [ ] Create CHANGELOG for 1.2.0
+- [ ] Write release notes highlighting features
+- [ ] Prepare announcement blog post
+- [ ] Update all version numbers
+- [ ] Tag release in git
 
-### Thread C: Performance Optimization (MEDIUM PRIORITY - Sequential)
+## Success Criteria for Version 1.2.0
 
-**Objective**: Achieve performance within 2x of native svgo (currently ~3-4x slower).
+### Functional Requirements
+- [x] Optimizes SVG files via CLI (stdin/stdout)
+- [ ] Reads SVG files from disk
+- [ ] Writes optimized SVG files to disk
+- [ ] Processes multiple files in one command
+- [ ] Provides helpful error messages
+- [ ] Works on macOS, Linux, and Windows
 
-**Detailed Steps**:
+### Quality Requirements
+- [ ] Zero panics in normal usage
+- [ ] >80% test coverage
+- [ ] All tests pass on all platforms
+- [ ] Performance within 5x of svgo
+- [ ] Binary size under 15MB
+- [ ] Memory usage under 100MB for typical files
 
-1. **Runtime Optimization**
-   - Profile QuickJS initialization overhead
-   - Implement runtime pooling for concurrent requests
-   - Cache compiled JavaScript bytecode
-   - Optimize memory allocation patterns
-   - Reduce startup time to <50ms
+### Documentation Requirements
+- [ ] README explains installation and usage
+- [ ] All CLI flags documented
+- [ ] Common use cases covered with examples
+- [ ] Troubleshooting guide available
+- [ ] Architecture documented for contributors
 
-2. **Data Transfer Optimization**
-   - Minimize string copying between Rust and JS
-   - Use zero-copy techniques where possible
-   - Optimize large SVG handling
-   - Implement streaming for huge files
-   - Profile and eliminate bottlenecks
+## Development Timeline
 
-3. **Bundle Optimization**
-   - Analyze bundle with webpack-bundle-analyzer
-   - Remove unused svgo code paths
-   - Implement lazy loading for plugins
-   - Optimize for common use cases
-   - Reduce bundle size to <400KB
+### Week 1 (Current)
+- Fix critical issues (Thread A1-A2)
+- Implement file I/O (Thread B1)
+- Start documentation (Thread D1)
 
-### Thread D: Testing & Validation (MEDIUM PRIORITY - Parallel)
+### Week 2
+- Complete essential CLI features (Thread B2-B3)
+- Begin comprehensive testing (Thread C1)
+- Continue documentation (Thread D2)
 
-**Objective**: Ensure reliability and compatibility across all platforms.
+### Week 3
+- Cross-platform testing (Thread C2)
+- Performance baseline (Thread C3)
+- Finalize documentation (Thread D3)
+- Prepare for release
 
-**Detailed Steps**:
-
-1. **Integration Testing**
-   - End-to-end CLI tests with assert_cmd
-   - Test all CLI flag combinations
-   - Verify error handling and messages
-   - Test edge cases (empty files, invalid SVGs)
-   - Add fuzzing for robustness
-
-2. **Cross-Platform Testing**
-   - Set up testing matrix for macOS/Linux/Windows
-   - Test different architectures (x64, ARM64)
-   - Verify single-binary deployment
-   - Test in minimal environments
-   - Check glibc/musl compatibility
-
-3. **Performance Benchmarking**
-   - Create benchmark suite with various SVG sizes
-   - Compare with svgo, osvg, and other tools
-   - Track performance over time
-   - Identify optimization opportunities
-   - Publish benchmark results
-
-### Thread E: Advanced Features (LOW PRIORITY - Future)
-
-**Objective**: Extend svgoo beyond basic svgo compatibility.
-
-**Detailed Steps**:
-
-1. **Language Bindings**
-   - Research PyO3 for Python integration
-   - Design pythonic API matching svgo-py patterns
-   - Create C++ header with modern C++ features
-   - Add examples for each language
-   - Publish to PyPI and other registries
-
-2. **Distribution Channels**
-   - Create Homebrew formula
-   - Submit to winget and chocolatey
-   - Create snap and flatpak packages
-   - Set up auto-update mechanisms
-   - Add installation documentation
-
-3. **Enhanced Features**
-   - Add GUI viewer for before/after comparison
-   - Implement watch mode for development
-   - Add SVG validation beyond optimization
-   - Create plugin development kit
-   - Add telemetry (opt-in) for usage stats
-
-## Implementation Timeline
-
-### Week 1-2 (Current)
-- ✅ Complete JavaScript integration foundation
-- 🚧 Implement plugin architecture bridge
-- 🚧 Add file I/O to CLI
-
-### Week 3-4
-- Complete all production CLI features
-- Comprehensive testing suite
-- Performance optimization phase 1
-
-### Week 5-6
-- Cross-platform verification
-- Performance optimization phase 2
-- Documentation and examples
-
-### Future (As Needed)
-- Python/C++ bindings
-- Package manager distribution
-- Enhanced features
-
-## Success Metrics
-
-1. **Compatibility**
-   - [ ] 100% of svgo test suite passes
-   - [ ] Byte-for-byte output match on reference SVGs
-   - [ ] All CLI flags work identically to svgo
-
-2. **Performance**
-   - [ ] Startup time <100ms
-   - [ ] Processing speed within 2x of svgo
-   - [ ] Memory usage comparable to svgo
-
-3. **Quality**
-   - [ ] Test coverage >90%
-   - [ ] Zero panics in production
-   - [ ] Clear error messages
-
-4. **Deployment**
-   - [ ] Single binary <10MB
-   - [ ] Works on all major platforms
-   - [ ] No runtime dependencies
+### Week 4
+- Bug fixes from testing
+- Final documentation review
+- Release version 1.2.0
 
 ## Risk Mitigation
 
-1. **QuickJS Limitations**
-   - Fallback: Use V8 or SpiderMonkey if needed
-   - Current assessment: QuickJS meeting all needs
+### Technical Risks
+1. **Plugin System Complexity**
+   - Mitigation: Hardcode default optimizations for MVP
+   - Future: Redesign for version 2.0
 
-2. **Performance Gap**
-   - Fallback: Optimize critical paths in Rust
-   - Current assessment: Acceptable performance achieved
+2. **Performance Issues**
+   - Mitigation: Document current limitations
+   - Future: Optimize in subsequent versions
 
-3. **Compatibility Issues**
-   - Fallback: Contribute fixes upstream to svgo
-   - Current assessment: Good compatibility so far
+3. **Platform Compatibility**
+   - Mitigation: Test early and often
+   - Future: Use CI/CD for automated testing
+
+### Schedule Risks
+1. **Scope Creep**
+   - Mitigation: Strictly adhere to MVP definition
+   - Future: Maintain backlog for post-1.2.0
+
+2. **Unknown Issues**
+   - Mitigation: Time buffer in week 4
+   - Future: Regular releases for quick fixes
+
+## Post-MVP Roadmap (Version 2.0+)
+
+- Redesigned plugin system with proper threading
+- Python and C++ bindings
+- Performance optimizations
+- Advanced CLI features (watch mode, parallel processing)
+- Package manager distribution
+- Web assembly version
 
 ## Next Immediate Actions
 
-1. Complete plugin architecture bridge (Thread A.1)
-2. Implement file I/O in CLI (Thread B.1)
-3. Set up comprehensive test suite (Thread D.1)
-4. Begin performance profiling (Thread C.1)
+1. Comment out plugin module to get clean build ✅
+2. Implement file I/O in CLI (Thread B1)
+3. Create test SVG collection (Thread C1)
+4. Write initial README (Thread D1)
+5. Set up cross-platform CI (Thread C2)

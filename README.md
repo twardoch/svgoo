@@ -4,7 +4,7 @@
 
 **svgoo** is a Rust library and CLI that exposes the same API as svgo (JavaScript SVG optimizer) while bundling svgo code with QuickJS. The goal is single-file deployment across macOS, Linux, and Windows, with bindings for Python and C++ applications.
 
-**Current Status**: JavaScript integration complete! The project now successfully embeds and runs real svgo code via QuickJS. Foundation includes: core architecture, CLI interface, configuration system, FFI bindings foundation, testing framework, and working SVG optimization.
+**Current Status**: Basic SVG optimization working via embedded svgo/QuickJS. The project has compilation issues that need resolution before reaching MVP status. Core features implemented but blocked by threading and compilation errors.
 
 ## Key References
 
@@ -25,10 +25,10 @@ The project integrates:
 
 ## Development Commands
 
-- `cargo build` - Build the project
-- `cargo test` - Run test suite (13 tests passing)
+- `npm run build` - Build JavaScript bundle (required before cargo build)
+- `cargo build` - Build the project (currently has compilation errors)
+- `cargo test` - Run test suite
 - `cargo run` - Run the CLI
-- `npm run build` - Build JavaScript bundles with Rollup
 - `cargo build --release` - Create optimized release build
 - `cargo clippy` - Run linting
 
@@ -39,17 +39,20 @@ The project integrates:
 # Optimize SVG from stdin to stdout
 cat input.svg | svgoo > output.svg
 
-# Optimize SVG file (coming soon)
+# Optimize SVG file
 svgoo input.svg -o output.svg
 
-# With custom config (coming soon)
+# Process multiple files
+svgoo file1.svg file2.svg file3.svg
+
+# With custom config
 svgoo input.svg --config svgo.config.json
 ```
 
-**Current Limitations**:
-- File input/output not yet implemented (use stdin/stdout)
-- Plugin configuration partially supported
-- Some optimizations less aggressive than reference svgo
+**Current Blockers**:
+- Compilation errors in plugin system (AsyncRuntime threading issues)
+- JavaScript bundle QuickJS compilation errors
+- AST visitor pattern incomplete
 
 ## Documentation System
 
@@ -100,36 +103,39 @@ Before and during coding (if have access to tools), you should:
 
 ## Implementation Status
 
-✅ **Completed**:
-- JavaScript Integration: Successfully embedded actual svgo code via rquickjs
-- Core SVG optimization functionality working
-- CLI with stdin/stdout support
-- Test infrastructure with reference comparisons
+✅ **Working**:
+- Basic SVG optimization via embedded svgo
+- CLI with file I/O and multiple file support
+- JavaScript bundle creation with Rollup
+- Test infrastructure foundation
 
-🚧 **In Progress**:
-- Plugin System: Implementing svgo plugin architecture bridge
-- Configuration compatibility improvements
+❌ **Blocked**:
+- Plugin system compilation errors (AsyncRuntime not Send/Sync)
+- QuickJS JavaScript compilation errors
+- Cannot run tests due to compilation issues
 
-📋 **Next Steps**:
-- Performance: Optimize runtime creation and caching
-- Validation: Add comprehensive SVG parsing and validation
-- Cross-platform Testing: Verify builds on all target platforms
-- Python/C++ bindings implementation
+📋 **MVP 1.2.0 Goals**:
+- Fix compilation errors
+- Get basic svgo optimization working reliably
+- Pass all existing tests
+- Document usage and limitations
 
-## Work guidance
+## MVP 1.2.0 Scope
 
-I want you to figure everything out yourself: 
+**Goal**: A working, well-documented SVG optimizer that embeds svgo via QuickJS.
 
-- [x] Resiliently research the information about these codebases
-- [x] Discover and use tools that will help you in the process
-- [x] Research, plan and implement the perfect structure for the project
-- [x] Research, plan and implement the perfect build system and toolkit for the project
-- [ ] Research, plan and implement the perfect packaging system for the project
-- [ ] Research, plan and implement the perfect deployment system for the project
-- [x] Research, plan and implement the perfect testing system for the project
-- [x] Research, plan and implement the perfect documentation system for the project
+**Requirements**:
+- Single binary deployment
+- Basic svgo compatibility (core optimization features)
+- Clear documentation of limitations
+- Reliable error handling
+- Cross-platform builds (macOS, Linux, Windows)
 
-And then finally start the project and implement it. 
+**Non-goals for MVP**:
+- Full plugin compatibility
+- Performance parity with native svgo
+- Language bindings (Python/C++)
+- Advanced features 
 
 # Working principles for software development
 
